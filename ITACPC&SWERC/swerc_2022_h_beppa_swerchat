@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""
+Contest: SWERC 2022_practice_Bocconi
+Problem: H - Beppa and SwerChat
+
+Problem in short:
+    For each test case we have n and two permutations a[1..n], b[1..n]
+    of member IDs 1..n. List a is the order at 9:00, list b at 22:00.
+    No two members are ever online at the same time, and nobody is
+    online exactly at 9:00 or 22:00. A member who never comes online
+    between 9:00 and 22:00 keeps the same last-seen time, so the
+    relative order between any two such members must be the same in
+    both lists.
+
+Idea:
+    The members who do not come online correspond to a largest subset
+    whose relative order is the same in both permutations. Mapping b's
+    elements to their positions in a gives an array p[1..n]. The length
+    of the longest strictly increasing subsequence of p is the maximum
+    number of members that may have stayed offline. The answer is
+    n minus this LIS length.
+"""
+
+import sys
+from bisect import bisect_left
+
+
+def lis_length(seq):
+    tails = []
+    for x in seq:
+        i = bisect_left(tails, x)
+        if i == len(tails):
+            tails.append(x)
+        else:
+            tails[i] = x
+    return len(tails)
+
+
+def main() -> None:
+    data = list(map(int, sys.stdin.buffer.read().split()))
+    it = iter(data)
+    t = next(it)
+    out_lines = []
+    for _ in range(t):
+        n = next(it)
+        a = [next(it) for _ in range(n)]
+        b = [next(it) for _ in range(n)]
+        pos = [0] * (n + 1)
+        for i, v in enumerate(a):
+            pos[v] = i
+        p = [pos[v] for v in b]
+        L = lis_length(p)
+        out_lines.append(str(n - L))
+    sys.stdout.write("\n".join(out_lines))
+
+
+if __name__ == "__main__":
+    main()

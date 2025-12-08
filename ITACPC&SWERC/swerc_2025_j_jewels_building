@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""
+Contest: SWERC 2025
+Problem: J - Jewels Building
+
+Problem in short:
+    We have an initial array a[1..n] and a target array b[1..m].
+    Operation (equivalent form): pick any subarray of length x >= 1
+    and replace it with any single value y such that 1 <= y <= x.
+    Decide whether we can turn a into b using finitely many operations.
+
+Idea:
+    Work in reverse and process b left to right.
+    For each prefix of b, we keep:
+      - P0: bitset of i where prefix a[1..i] can match this prefix of b
+            with no active "tail" segment.
+      - t1: smallest i where a[1..i] matches the prefix of b and we are
+            inside the tail of a replaced segment (then all i' >= i are
+            also valid tail positions).
+    For each new value y in b:
+      - From P0 and the tail suffix [t1, n], build a bitset P of all
+        reachable i before using y.
+      - New P0 is obtained by matching single equal elements y.
+      - New t1 is the earliest position i that can be the end of a
+        fused block of total length y starting from a reachable p<i:
+        i = p + y. Bit operations on P and precomputed prefix masks
+        give this in O(1) per y.
+    After processing all b, answer YES iff we can finish at position n
+    either with P0 or with a tail (t1 <= n).
+"""
+
+import sys
+
+MAXN = 4000
+PREF = [(1 << (i + 1)) - 1 for i in range(MAXN + 1)]
+
+
+def main() -> None:
+    data = list(map(int, sys.stdin.buffer.read().split()))
+    it = iter(data)
+    t = next(it)
+    out_lines = []
+
+    for _ in range(t):
+        n = next(it)
+        m = next(it)
+        a = [next(it) for _ in range(n)]
+        b = [next(it) for _ in range(m)]
+
+        pos_bits = {}
+        for idx, v in enumerate(a, 1):
+            pos_bits[v] = pos_bits.get(v, 0) | (1 << idx)
+
+        full_mask = PREF[n]
+        inf = n + 1
+        p0 = 1
+        t1 = inf
+
+        for y in b:
+            eq = pos_bits.get(y, 0)
+
+            if t1 <= n:
+                s1 = full_mask ^ PREF[t1 - 1]
+            else:
+                s1 = 0
+            p = p0 | s1
+
+            c0 = eq & ((p << 1) & full_mask)
+
+            if n - y >= 0:
+                starts = p & PREF[n - y]
+                if starts:
+                    lowest = starts & -starts
+                    start_idx = lowest.bit_length() - 1
+                    t1_new = start_idx + y
+                else:
+                    t1_new = inf
+            else:
+                t1_new = inf
+
+            p0 = c0
+            t1 = t1_new
+
+        if (p0 >> n) & 1 or t1 <= n:
+            out_lines.append("YES")
+        else:
+            out_lines.append("NO")
+
+    sys.stdout.write("\n".join(out_lines))
+
+
+if __name__ == "__main__":
+    main()

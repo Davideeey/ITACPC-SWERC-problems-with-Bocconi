@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""
+Contest: SWERC 2022_practice_Bocconi
+Problem: G - Another Wine Tasting Event
+
+Problem in short:
+Given n and a string s of length 2n-1 with characters 'R' and 'W',
+we need an integer x such that there exist n distinct intervals of
+length at least n, each containing exactly x white wines ('W').
+
+Idea:
+Key observation is that the required x can be chosen as the maximum number of whites in any
+contiguous block of length exactly n. So we just compute that value
+with a sliding window in O(2n) time.
+"""
+
+import sys
+
+
+def solve():
+    data = sys.stdin.read().split()
+    if not data:
+        return
+    n = int(data[0])
+    s = data[1]
+    L = 2 * n - 1
+
+    curr = 0
+    for i in range(n):
+        if s[i] == 'W':
+            curr += 1
+    best = curr
+
+    for i in range(n, L):
+        if s[i] == 'W':
+            curr += 1
+        if s[i - n] == 'W':
+            curr -= 1
+        if curr > best:
+            best = curr
+
+    print(best)
+
+
+if __name__ == "__main__":
+    solve()

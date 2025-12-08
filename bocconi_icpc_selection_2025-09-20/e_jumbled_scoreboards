@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""
+Contest: Bocconi ICPC Selection, September 2025 (Kattis)
+Problem: E - Jumbled Scoreboards
+
+Problem in short:
+    You receive n pictures of a scoreboard showing scores (a, b) for two teams.
+    Scores for each team can only increase over time, and every pair (a, b)
+    in the input is unique. The pictures are given in the order you received them.
+
+    Output "yes" if the pictures can be in chronological order, otherwise "no".
+
+Idea:
+    If the pictures are in chronological order, then as time goes forward
+    neither score can ever decrease. So for each consecutive pair
+        (a_i, b_i) -> (a_{i+1}, b_{i+1})
+    we must have
+        a_{i+1} >= a_i and b_{i+1} >= b_i.
+    We simply check this condition for all adjacent pairs.
+"""
+
+import sys
+
+
+def solve():
+    it = sys.stdin
+    n = int(it.readline())
+    a_prev, b_prev = map(int, it.readline().split())
+
+    for _ in range(n - 1):
+        a, b = map(int, it.readline().split())
+        if a < a_prev or b < b_prev:
+            print("no")
+            return
+        a_prev, b_prev = a, b
+
+    print("yes")
+
+
+if __name__ == "__main__":
+    solve()
