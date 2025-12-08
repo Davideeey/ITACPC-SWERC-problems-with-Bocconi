@@ -1,5 +1,4 @@
 # ITACPC-SWERC-problems-with-Bocconi
-# ICPC-style problems Solutions – Davide Yang
 
 This repository collects part of my solutions in Python to some ICPC-style problems that I worked on during
 internal selections, practice sessions, and contests with Bocconi.
